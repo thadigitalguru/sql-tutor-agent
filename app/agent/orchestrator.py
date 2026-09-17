@@ -260,6 +260,7 @@ class Orchestrator:
             engine_message=evaluation.engine_message,
             hint_text=hint_text,
             correct_explanation=exercise.solution_notes or exercise.concept,
+            quality_notes=evaluation.quality_notes,
         )
         if settings.llm_enabled:
             feedback = self.tutor.feedback_for_evaluation(
@@ -369,8 +370,7 @@ class Orchestrator:
             solution_revealed=False,
             failed_attempts=0,
         )
-        teach = exercise.teach or exercise.concept
-        feedback = f"{teach}\n\n{exercise.prompt}".strip()
+        feedback = "New task. Run to explore the tables, then Submit when you think the result is right."
         return ActionResult(
             session=self._session_payload(session_id, session["learner_id"]),
             exercise=self._public_exercise(exercise, 0),
@@ -508,19 +508,20 @@ class Orchestrator:
         return "Look at the schema and the wording of the task again."
 
     def _intro_text(self, learner: dict, exercise: Exercise | None) -> str:
-        dialect_note = ""
-        if learner["dialect"] != Dialect.SQLITE.value:
-            dialect_note = (
-                f" You selected {learner['dialect']}; this sandbox runs SQLite. "
-                "I'll teach your dialect and call out differences when they matter."
-            )
         if exercise is None:
             return "You're all caught up. Open Progress to review weak skills."
-        teach = exercise.teach or exercise.concept
+        dialect = learner["dialect"]
+        if dialect == Dialect.SQLITE.value:
+            dialect_note = "This sandbox is SQLite, matching the dialect you selected."
+        else:
+            dialect_note = (
+                f"I'll teach **{_dialect_label(dialect)}**. The sandbox engine is SQLite, "
+                "and I'll call out differences when they matter."
+            )
         return (
-            f"We'll start with **{exercise.title}** ({exercise.primary_skill.replace('_', ' ')})."
-            f"{dialect_note}\n\n{teach}"
-        ).strip()
+            f"{dialect_note} Write a query in the editor. Use **Run** to explore rows, "
+            "then **Submit** when you think it is right."
+        )
 
     def _session_summary(self, learner_id: str) -> str:
         skills = self.repo.list_skills(learner_id)
@@ -547,3 +548,12 @@ class Orchestrator:
                 "goal": learner["goal"] if learner else None,
             },
         }
+
+
+def _dialect_label(dialect: str) -> str:
+    return {
+        "postgresql": "PostgreSQL",
+        "sqlite": "SQLite",
+        "mysql": "MySQL",
+        "sqlserver": "SQL Server",
+    }.get(dialect, dialect)

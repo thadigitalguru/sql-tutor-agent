@@ -38,6 +38,9 @@ Web UI  →  FastAPI orchestrator  →  LLM tutor (optional)
 
 **Submit:** validate → execute → compare to reference result (and hidden
 variants) → diagnose → record attempt → update mastery → generate feedback.
+After a correct result, a separate quality pass may add readability or
+performance notes and mark `CORRECT_WITH_IMPROVEMENT`. Style notes never
+fail an otherwise correct query.
 
 **Hint:** increment `hint_level` by one → return that ladder step.
 

@@ -52,6 +52,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and
 - Learner SQL runs in an isolated in-memory SQLite clone of the exercise dataset.
 - Only a single `SELECT` / `WITH` / `UNION` is allowed.
 - Correctness is result-set comparison, not string matching against the reference query.
+- After a correct result, readability or performance notes may appear; they never fail the exercise.
 - Hint levels increase one step at a time. The full solution is not shown on the first failure.
 - Mastery is a clamped numeric model from the architecture spec.
 

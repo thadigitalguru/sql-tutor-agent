@@ -7,6 +7,13 @@ import { oneDark } from "https://esm.sh/@codemirror/theme-one-dark@6";
 const STORAGE_LEARNER = "sql-tutor-learner-id";
 const STORAGE_SESSION = "sql-tutor-session-id";
 
+const DIALECT_LABELS = {
+  postgresql: "PostgreSQL",
+  sqlite: "SQLite",
+  mysql: "MySQL",
+  sqlserver: "SQL Server",
+};
+
 const els = {
   onboarding: document.querySelector("#onboarding"),
   form: document.querySelector("#onboarding-form"),
@@ -15,9 +22,11 @@ const els = {
   title: document.querySelector("#task-title"),
   prompt: document.querySelector("#task-prompt"),
   concept: document.querySelector("#task-concept"),
+  dialect: document.querySelector("#dialect-chip"),
   schema: document.querySelector("#schema-list"),
   orderNote: document.querySelector("#order-note"),
   feedback: document.querySelector("#tutor-feedback"),
+  quality: document.querySelector("#quality-notes"),
   result: document.querySelector("#result-table"),
   status: document.querySelector("#status-chip"),
   engine: document.querySelector("#engine-error"),
@@ -76,6 +85,42 @@ function setQuery(sqlText) {
   });
 }
 
+function getQuery() {
+  return editor().state.doc.toString();
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function formatInline(text) {
+  return escapeHtml(text)
+    .replaceAll("\n", "<br>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
+
+function renderRich(el, text) {
+  el.replaceChildren();
+  if (!text) return;
+  for (const block of String(text).split(/\n{2,}/)) {
+    const p = document.createElement("p");
+    p.innerHTML = formatInline(block.trim());
+    el.append(p);
+  }
+}
+
+function setOnboarding(open) {
+  if (open) {
+    if (!els.onboarding.open) els.onboarding.showModal();
+  } else if (els.onboarding.open) {
+    els.onboarding.close();
+  }
+}
+
 function renderSchema(payload) {
   schema = payload;
   els.schema.replaceChildren();
@@ -119,16 +164,46 @@ function renderExercise(ex) {
   els.kicker.textContent = `Lesson: ${ex.primary_skill.replaceAll("_", " ")}`;
   els.skill.textContent = `Difficulty ${ex.difficulty}`;
   els.title.textContent = ex.title;
-  els.prompt.textContent = ex.prompt;
-  els.concept.textContent = ex.teach || ex.concept || "";
+  renderRich(els.prompt, ex.prompt);
+  renderRich(els.concept, ex.teach || ex.concept || "");
   els.orderNote.textContent = ex.evaluation?.order_matters
     ? "Row order matters"
     : "Row order does not matter";
   els.next.hidden = true;
 }
 
+function renderQuality(notes) {
+  els.quality.replaceChildren();
+  if (!notes?.length) {
+    els.quality.hidden = true;
+    return;
+  }
+  els.quality.hidden = false;
+  for (const note of notes) {
+    const item = document.createElement("li");
+    const kind = document.createElement("span");
+    kind.className = "kind";
+    kind.textContent = note.kind;
+    const message = document.createElement("span");
+    message.textContent = note.message;
+    item.append(kind, message);
+    els.quality.append(item);
+  }
+}
+
+function renderDialect(session) {
+  const dialect = session?.learner?.dialect;
+  if (!dialect || dialect === "sqlite") {
+    els.dialect.textContent = "Teaching SQLite";
+    return;
+  }
+  const label = DIALECT_LABELS[dialect] || dialect;
+  els.dialect.textContent = `Teaching ${label} · sandbox SQLite`;
+}
+
 function renderFeedback(payload) {
-  els.feedback.textContent = payload.feedback || "";
+  renderRich(els.feedback, payload.feedback || "");
+  renderQuality(payload.evaluation?.quality_notes);
   const status = payload.evaluation?.status;
   els.status.textContent = status || (payload.result?.ok === false ? payload.result.error_type : "");
   els.status.className = "muted " + (status === "CORRECT" || status === "CORRECT_WITH_IMPROVEMENT" ? "status-ok" : "status-bad");
@@ -219,6 +294,7 @@ function applyPayload(payload) {
   }
   renderExercise(payload.exercise);
   renderSchema(payload.schema);
+  renderDialect(payload.session);
   renderFeedback(payload);
   renderProgress(payload.progress);
 }
@@ -231,11 +307,7 @@ async function startSession(overrides = {}) {
   };
   const payload = await api("/sessions", { method: "POST", body: JSON.stringify(body) });
   applyPayload(payload);
-  if (payload.onboarding && !overrides.sql_level) {
-    els.onboarding.hidden = false;
-  } else {
-    els.onboarding.hidden = true;
-  }
+  setOnboarding(Boolean(payload.onboarding && !overrides.sql_level));
 }
 
 async function previewTable(table) {
@@ -244,13 +316,14 @@ async function previewTable(table) {
     `/tables/${encodeURIComponent(table)}/preview?dataset_id=${encodeURIComponent(exercise.dataset)}&limit=8`
   );
   renderTable(data);
-  els.feedback.textContent = `Preview of ${table}. This is exploration — it does not affect mastery.`;
+  renderQuality([]);
+  renderRich(els.feedback, `Preview of \`${table}\`. This is exploration — it does not affect mastery.`);
   els.status.textContent = "preview";
 }
 
 async function runQuery(kind) {
   if (!exercise || !sessionId) return;
-  const query = editor().state.doc.toString();
+  const query = getQuery();
   const path = kind === "submit" ? `/exercises/${exercise.id}/submit` : "/sql/run";
   const payload = await api(path, {
     method: "POST",
@@ -318,6 +391,8 @@ document.querySelector("#btn-easier").addEventListener("click", async () => {
 
 editor();
 startSession().catch((err) => {
-  els.onboarding.hidden = false;
-  els.feedback.textContent = err.message;
+  setOnboarding(true);
+  renderRich(els.feedback, err.message);
 });
+
+window.sqlCoach = { setQuery, getQuery, run: () => runQuery("run"), submit: () => runQuery("submit") };

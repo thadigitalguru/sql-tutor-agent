@@ -16,6 +16,7 @@ from app.domain import (
 )
 from app.sandbox.diagnostics import diagnose
 from app.sandbox.executor import Sandbox, run_sql
+from app.sandbox.quality import assess_quality
 
 _NULL = object()
 
@@ -59,6 +60,11 @@ def evaluate_exercise(
         exercise=exercise,
         actual=None,
     )
+    if combined.status in _SUCCESS:
+        notes = assess_quality(query, exercise=exercise)
+        combined.quality_notes = notes
+        if notes:
+            combined.status = SubmissionStatus.CORRECT_WITH_IMPROVEMENT
     return combined
 
 

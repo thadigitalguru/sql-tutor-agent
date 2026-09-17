@@ -39,4 +39,4 @@ Source of truth for what is running, not aspirational.
 - [x] Hidden test datasets (NULL / join variants)
 - [x] Mid-senior platform dataset (star schema, SCD2, events, model logs)
 - [x] AI engineering, data architecture, database engineering, and modeling tracks
-- [ ] Readability/performance notes after correctness
+- [x] Readability/performance notes after correctness

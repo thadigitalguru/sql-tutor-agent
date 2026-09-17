@@ -48,10 +48,19 @@ def template_feedback(
     engine_message: str | None,
     hint_text: str | None,
     correct_explanation: str | None,
+    quality_notes: list | None = None,
 ) -> str:
-    if status == "CORRECT":
+    if status in {"CORRECT", "CORRECT_WITH_IMPROVEMENT"}:
         why = correct_explanation or "The result set matches the required rows."
-        return f"Correct.\n\nWhy it works:\n{why}"
+        body = f"Correct.\n\nWhy it works:\n{why}"
+        if quality_notes:
+            lines = []
+            for note in quality_notes:
+                kind = getattr(note, "kind", None) or note.get("kind")
+                message = getattr(note, "message", None) or note.get("message")
+                lines.append(f"- **{kind}:** {message}")
+            body += "\n\nThe rows are right. A few quality notes (these do not change the grade):\n" + "\n".join(lines)
+        return body
     if status == "SYNTAX_ERROR":
         return syntax_feedback(engine_message or "syntax error")
     if status == "UNSAFE":

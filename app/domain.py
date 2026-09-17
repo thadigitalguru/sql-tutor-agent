@@ -99,6 +99,19 @@ class Comparison(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class QualityKind(StrEnum):
+    READABILITY = "readability"
+    PERFORMANCE = "performance"
+    COMPLEXITY = "complexity"
+    DIALECT = "dialect"
+
+
+class QualityNote(BaseModel):
+    kind: QualityKind
+    tag: str
+    message: str
+
+
 class Evaluation(BaseModel):
     status: SubmissionStatus
     execution_ok: bool
@@ -107,6 +120,7 @@ class Evaluation(BaseModel):
     engine_message: str | None = None
     hidden_variants_passed: int = 0
     hidden_variants_total: int = 0
+    quality_notes: list[QualityNote] = Field(default_factory=list)
 
 
 class Hint(BaseModel):

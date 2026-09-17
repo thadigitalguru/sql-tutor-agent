@@ -70,4 +70,11 @@ Choosing mid-level/senior (or intermediate) writes 0.62 mastery onto the
 assumed prior skills so the selector can offer difficulty 4–5 work immediately.
 Those skills are not labeled Mastered.
 
+## AD-013 — Quality notes only after correctness
+
+Layer 5 (readability, extra complexity, performance, dialect idiom) runs after
+the result set already matches. Notes may change the status to
+`CORRECT_WITH_IMPROVEMENT` but never to incorrect. Patterns that also appear
+in the reference SQL are not flagged.
+
 

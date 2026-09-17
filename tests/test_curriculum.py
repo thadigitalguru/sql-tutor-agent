@@ -2,6 +2,8 @@ from app.curriculum.loader import get_exercise, load_exercises
 from app.domain import SubmissionStatus
 from app.sandbox.evaluator import evaluate_exercise
 
+SUCCESS = {SubmissionStatus.CORRECT, SubmissionStatus.CORRECT_WITH_IMPROVEMENT}
+
 ALTERNATES = {
     "sel_001": "SELECT name, country FROM customers AS c",
     "whr_001": "SELECT name, country FROM customers WHERE country IN ('Kenya')",
@@ -107,11 +109,11 @@ def test_alternates_pass_and_wrong_fail() -> None:
     for exercise_id, sql in ALTERNATES.items():
         exercise = get_exercise(exercise_id)
         evaluation = evaluate_exercise(exercise, sql)
-        assert evaluation.status == SubmissionStatus.CORRECT, (
+        assert evaluation.status in SUCCESS, (
             exercise_id,
             evaluation.status,
             evaluation.engine_message,
             evaluation.comparison,
         )
         wrong = evaluate_exercise(exercise, WRONG[exercise_id])
-        assert wrong.status != SubmissionStatus.CORRECT, exercise_id
+        assert wrong.status not in SUCCESS, exercise_id
