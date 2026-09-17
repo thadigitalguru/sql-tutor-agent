@@ -1,0 +1,57 @@
+id: model_001
+title: Acme roster on a given day
+primary_skill: effective_dated
+secondary_skills: [inner_join, date_operations]
+difficulty: 5
+dataset: platform
+module: data_modeling
+prerequisites: [inner_join, date_operations]
+
+prompt: >
+  Return `user_id` and `email` for users who were members of the Acme
+  account (`account_id = 1`) on date `'2023-12-15'`. A row covers a date
+  when effective_from <= date and (effective_to IS NULL OR effective_to > date).
+
+concept: Effective-dated tables model slowly changing relationships without SCD2 surrogates.
+teach: >
+  Membership, pricing, and assignment tables often use inclusive start and
+  exclusive end. Open-ended current rows use NULL end timestamps. This is
+  the same interval predicate as SCD Type 2, applied to a bridge table.
+
+schema:
+  - users
+  - account_members
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT u.user_id, u.email
+    FROM users u
+    JOIN account_members m
+      ON m.user_id = u.user_id
+     AND m.account_id = 1
+     AND m.effective_from <= '2023-12-15'
+     AND (m.effective_to IS NULL OR m.effective_to > '2023-12-15');
+
+hints:
+  - level: 1
+    text: Some Acme members later left. The 2023 roster is not the current roster.
+  - level: 2
+    text: Filter `account_members` to account_id 1 and the date window.
+  - level: 3
+    text: effective_from <= '2023-12-15' AND (effective_to IS NULL OR effective_to > date).
+  - level: 4
+    text: |
+      JOIN account_members m
+        ON m.user_id = u.user_id
+       AND m.account_id = 1
+       AND m.effective_from <= '2023-12-15'
+       AND (m.effective_to IS NULL OR m.effective_to > '2023-12-15');
+
+common_errors:
+  - tag: date_logic
+    explanation: effective_to IS NULL only returns today's members and drops Hao, who was still on Acme in December 2023.

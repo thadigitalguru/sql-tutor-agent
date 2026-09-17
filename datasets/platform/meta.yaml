@@ -1,0 +1,21 @@
+id: platform
+title: Product and ML platform
+description: >
+  A compact warehouse-shaped dataset for mid-senior SQL: org hierarchy,
+  effective-dated memberships, SCD2 customers, order facts, product events,
+  and model inference logs.
+tables:
+  - employees
+  - accounts
+  - users
+  - account_members
+  - dim_customer
+  - dim_product
+  - fact_orders
+  - events
+  - model_runs
+  - predictions
+  - labels
+  - user_features
+  - documents
+  - chunks

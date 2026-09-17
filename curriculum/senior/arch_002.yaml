@@ -1,0 +1,50 @@
+id: arch_002
+title: Restore order grain from line facts
+primary_skill: data_grain
+secondary_skills: [group_by]
+difficulty: 4
+dataset: platform
+module: data_architecture
+prerequisites: [group_by]
+
+prompt: >
+  `fact_orders` is at order-line grain. Return one row per `order_id` with
+  the order total `amount`. Do not return one row per line.
+
+concept: Never report at a finer grain than the question asks.
+teach: >
+  Line facts fan out when an order has multiple products. Summing without
+  grouping by order_id overstates order counts. Always name the grain
+  before writing the SELECT list.
+
+schema:
+  - fact_orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT order_id, SUM(amount)
+    FROM fact_orders
+    GROUP BY order_id;
+
+hints:
+  - level: 1
+    text: Some order_id values appear more than once.
+  - level: 2
+    text: Collapse `fact_orders` to one row per `order_id`.
+  - level: 3
+    text: GROUP BY order_id and SUM(amount).
+  - level: 4
+    text: |
+      SELECT order_id, SUM(amount)
+      FROM fact_orders
+      GROUP BY order_id;
+
+common_errors:
+  - tag: aggregation
+    explanation: SELECT order_id, amount returns line grain, so order 10 appears twice.

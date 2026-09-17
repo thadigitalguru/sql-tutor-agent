@@ -1,0 +1,56 @@
+id: mix_001
+title: High-spending customer names
+primary_skill: having
+secondary_skills: [inner_join, group_by]
+difficulty: 4
+dataset: ecommerce
+module: advanced
+prerequisites: [having, inner_join]
+
+prompt: >
+  Return each customer `name` and their total order amount for customers
+  whose total across all orders is greater than 500. One row per customer.
+
+concept: Combine grouping with a join after you can do each skill alone.
+teach: >
+  Group orders by customer, keep totals above 500, then attach names —
+  or join first and group by customer_id and name. Both are valid.
+
+schema:
+  - customers
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT c.name, SUM(o.total_amount)
+    FROM customers c
+    JOIN orders o
+      ON o.customer_id = c.customer_id
+    GROUP BY c.customer_id, c.name
+    HAVING SUM(o.total_amount) > 500;
+
+hints:
+  - level: 1
+    text: You need names and a grouped total in the same result.
+  - level: 2
+    text: Totals come from `orders`; names come from `customers`.
+  - level: 3
+    text: JOIN, GROUP BY customer, HAVING SUM > 500.
+  - level: 4
+    text: |
+      SELECT c.name, SUM(o.total_amount)
+      FROM customers c
+      JOIN orders o
+        ON o.customer_id = c.customer_id
+      GROUP BY c.customer_id, c.name
+      HAVING SUM(o.total_amount) > ...
+
+common_errors:
+  - tag: having_vs_where
+    explanation: WHERE SUM(...) still fails; the total exists only after GROUP BY.

@@ -1,0 +1,58 @@
+id: left_001
+title: Every customer and their order count
+primary_skill: left_join
+secondary_skills: [group_by, aggregate_count]
+difficulty: 4
+dataset: ecommerce
+module: joins
+prerequisites: [inner_join]
+hidden_variants:
+  - hidden_nulls
+
+prompt: >
+  Return each customer's `customer_id`, `name`, and how many orders they
+  have. Include customers with zero orders.
+
+concept: LEFT JOIN keeps every left-side row, even when there is no match.
+teach: >
+  An INNER JOIN would drop customers who never ordered. COUNT(o.order_id)
+  counts matching orders and treats unmatched customers as zero because
+  COUNT skips NULL. COUNT(*) would count the unmatched placeholder row as 1.
+
+schema:
+  - customers
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT c.customer_id, c.name, COUNT(o.order_id)
+    FROM customers c
+    LEFT JOIN orders o
+      ON o.customer_id = c.customer_id
+    GROUP BY c.customer_id, c.name;
+
+hints:
+  - level: 1
+    text: Some customers may have no orders. They still belong in the result.
+  - level: 2
+    text: Start from `customers` and match `orders` on customer_id.
+  - level: 3
+    text: Use LEFT JOIN and COUNT(order_id), then GROUP BY the customer.
+  - level: 4
+    text: |
+      SELECT c.customer_id, c.name, COUNT(o.order_id)
+      FROM customers c
+      LEFT JOIN orders o
+        ON ...
+      GROUP BY c.customer_id, c.name;
+
+common_errors:
+  - tag: missing_join
+    explanation: INNER JOIN drops customers with no orders.
+  - tag: aggregation
+    explanation: COUNT(*) on a left join counts the placeholder row as one order.

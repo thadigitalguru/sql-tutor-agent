@@ -32,6 +32,18 @@ pytest
 ruff check app tests
 ```
 
+## Tracks
+
+- **Foundations** — SELECT through joins on the ecommerce dataset.
+- **SQL for AI / ML engineering** — point-in-time features, inference logs,
+  temporal train/eval splits, offline eval, RAG metadata filters, token cost.
+- **Data architecture & modeling** — star schema, fact grain, SCD Type 2,
+  bridge tables, effective-dated memberships, org hierarchies, sessionization.
+- **Database engineering** — anti-joins, keyset pagination, JSON, recursive CTEs.
+
+Pick **Mid-level / senior practitioner** at onboarding to skip keyword drills
+and start on the `platform` warehouse dataset.
+
 ## How it works
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and

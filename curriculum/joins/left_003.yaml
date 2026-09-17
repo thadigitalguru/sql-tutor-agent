@@ -1,0 +1,54 @@
+id: left_003
+title: Customers and latest-looking order status
+primary_skill: left_join
+secondary_skills: [null_handling]
+difficulty: 4
+dataset: ecommerce
+module: joins
+prerequisites: [left_join]
+
+prompt: >
+  Return each customer's `name` and the `status` of any matching order.
+  Include customers with no orders. Duplicate customer names are expected
+  when a customer has several orders. Do not filter on status.
+
+concept: LEFT JOIN can duplicate left-side rows when the relationship is one-to-many.
+teach: >
+  One customer with three orders appears three times. A customer with none
+  appears once, with NULL status. That duplication is the join working,
+  not a bug.
+
+schema:
+  - customers
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  duplicates_matter: true
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT c.name, o.status
+    FROM customers c
+    LEFT JOIN orders o
+      ON o.customer_id = c.customer_id;
+
+hints:
+  - level: 1
+    text: Keep every customer, even if the order side is empty.
+  - level: 2
+    text: Join `customers` to `orders` on customer_id.
+  - level: 3
+    text: Use LEFT JOIN and select name plus status.
+  - level: 4
+    text: |
+      SELECT c.name, o.status
+      FROM customers c
+      LEFT JOIN orders o
+        ON ...
+
+common_errors:
+  - tag: missing_join
+    explanation: INNER JOIN hides customers who never ordered.

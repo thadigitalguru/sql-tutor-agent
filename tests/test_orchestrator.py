@@ -51,3 +51,28 @@ def test_submit_updates_mastery_and_allows_retry(tmp_path) -> None:
     nxt = orch.next_exercise(session_id)
     assert nxt.exercise is not None
     assert nxt.exercise["id"] != exercise_id
+
+
+def test_mid_senior_ai_track_skips_select_basics(tmp_path) -> None:
+    orch = Orchestrator(repo=Repository(tmp_path / "t.sqlite"))
+    started = orch.start_session(
+        sql_level="mid_senior",
+        dialect="postgresql",
+        goal="ai_engineering",
+        resume=False,
+    )
+    assert started.exercise is not None
+    assert started.exercise["primary_skill"] in {
+        "inference_ops",
+        "feature_store",
+        "train_eval_split",
+        "eval_metrics",
+        "rag_retrieval",
+        "cost_attribution",
+        "sessionization",
+        "json_semi_structured",
+        "window_functions",
+    }
+    assert started.exercise["difficulty"] >= 4
+    assert started.schema is not None
+    assert started.schema.dataset_id == "platform"

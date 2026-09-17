@@ -1,0 +1,55 @@
+id: ai_006
+title: Retrieve non-PII wiki chunks
+primary_skill: rag_retrieval
+secondary_skills: [json_semi_structured, inner_join]
+difficulty: 4
+dataset: platform
+module: ai_engineering
+prerequisites: [json_semi_structured, inner_join]
+
+prompt: >
+  Return `chunk_id`, document `title`, and `chunk_index` for chunks whose
+  document `source` is `'wiki'` and whose metadata marks `pii` as 0.
+  Order does not matter.
+
+concept: RAG retrieval is a filtered join over chunk + document metadata.
+teach: >
+  Production retrievers still start with SQL or warehouse filters (tenant,
+  ACL, PII, source) before embedding search. In this sandbox,
+  json_extract(metadata_json, '$.pii') reads the flag. PostgreSQL would
+  use metadata_json->>'pii' or JSONB containment.
+
+schema:
+  - documents
+  - chunks
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT c.chunk_id, d.title, c.chunk_index
+    FROM chunks c
+    JOIN documents d
+      ON d.doc_id = c.doc_id
+    WHERE d.source = 'wiki'
+      AND json_extract(d.metadata_json, '$.pii') = 0;
+
+hints:
+  - level: 1
+    text: Chunks do not carry the PII flag. Documents do.
+  - level: 2
+    text: Join `chunks` to `documents` and inspect metadata_json.
+  - level: 3
+    text: Filter source = 'wiki' and json_extract(..., '$.pii') = 0.
+  - level: 4
+    text: |
+      JOIN documents d ON d.doc_id = c.doc_id
+      WHERE d.source = 'wiki'
+        AND json_extract(d.metadata_json, '$.pii') = 0;
+
+common_errors:
+  - tag: missing_join
+    explanation: Querying chunks alone cannot enforce document source or PII metadata.

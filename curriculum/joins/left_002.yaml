@@ -1,0 +1,58 @@
+id: left_002
+title: Customers who have never ordered
+primary_skill: left_join
+secondary_skills: [null_handling]
+difficulty: 4
+dataset: ecommerce
+module: joins
+prerequisites: [left_join]
+hidden_variants:
+  - hidden_nulls
+
+prompt: >
+  Return `customer_id` and `name` for customers who have never placed an
+  order.
+
+concept: After a LEFT JOIN, unmatched right-hand columns are NULL.
+teach: >
+  Keep every customer, attach orders, then keep rows where the order key
+  is NULL. Filtering on a right-hand real column such as status would
+  drop those unmatched customers.
+
+schema:
+  - customers
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT c.customer_id, c.name
+    FROM customers c
+    LEFT JOIN orders o
+      ON o.customer_id = c.customer_id
+    WHERE o.order_id IS NULL;
+
+hints:
+  - level: 1
+    text: You are looking for an absence of related rows.
+  - level: 2
+    text: Start from `customers` and look for missing `orders`.
+  - level: 3
+    text: LEFT JOIN then WHERE order_id IS NULL.
+  - level: 4
+    text: |
+      SELECT c.customer_id, c.name
+      FROM customers c
+      LEFT JOIN orders o
+        ON o.customer_id = c.customer_id
+      WHERE o.order_id IS ...
+
+common_errors:
+  - tag: left_join_filter
+    explanation: WHERE o.status = 'paid' turns the outer join into an inner join.
+  - tag: missing_join
+    explanation: An INNER JOIN cannot return customers with no orders.

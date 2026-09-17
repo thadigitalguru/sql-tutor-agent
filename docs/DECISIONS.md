@@ -58,3 +58,16 @@ A skill unlocks dependents after `successful_attempts >= 1` (or mastery ≥ 0.12
 Mastery still cannot be labeled "Mastered" until multiple exercises plus a review.
 This keeps the beginner path moving without treating one success as competence.
 
+## AD-011 — Mid-senior tracks use a platform warehouse
+
+AI engineering, data architecture, and database engineering exercises run on
+the `platform` dataset (facts, SCD2, org tree, events, inference logs), not
+the beginner ecommerce shop.
+
+## AD-012 — Intermediate/advanced onboarding seeds prior-skill mastery
+
+Choosing mid-level/senior (or intermediate) writes 0.62 mastery onto the
+assumed prior skills so the selector can offer difficulty 4–5 work immediately.
+Those skills are not labeled Mastered.
+
+

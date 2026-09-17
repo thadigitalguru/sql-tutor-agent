@@ -1,0 +1,68 @@
+id: ai_002
+title: Point-in-time features for labels
+primary_skill: feature_store
+secondary_skills: [window_functions, date_operations]
+difficulty: 5
+dataset: platform
+module: ai_engineering
+prerequisites: [window_functions, date_operations]
+
+prompt: >
+  For each row in `labels`, attach the latest `user_features` row for that
+  `entity_id` (= `user_id`) whose `computed_at` is on or before `labeled_at`.
+  Return `entity_id`, `orders_7d`, and `spend_7d`. Do not use a feature
+  computed after the label time.
+
+concept: Training joins must be point-in-time or they leak the future.
+teach: >
+  A feature store snapshot dated after the label is not valid training data.
+  Filter `computed_at <= labeled_at`, then pick the latest remaining row
+  per entity. This is the same idea as an as-of / ASOF join.
+
+schema:
+  - labels
+  - user_features
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    WITH joined AS (
+      SELECT
+        l.entity_id,
+        f.orders_7d,
+        f.spend_7d,
+        ROW_NUMBER() OVER (
+          PARTITION BY l.entity_id
+          ORDER BY f.computed_at DESC
+        ) AS rn
+      FROM labels l
+      JOIN user_features f
+        ON f.user_id = l.entity_id
+       AND f.computed_at <= l.labeled_at
+    )
+    SELECT entity_id, orders_7d, spend_7d
+    FROM joined
+    WHERE rn = 1;
+
+hints:
+  - level: 1
+    text: The label time is a cutoff. Later feature jobs cannot be used.
+  - level: 2
+    text: Join `labels.entity_id` to `user_features.user_id` with computed_at <= labeled_at.
+  - level: 3
+    text: After that filter, take the latest computed_at per entity with ROW_NUMBER.
+  - level: 4
+    text: |
+      JOIN user_features f
+        ON f.user_id = l.entity_id
+       AND f.computed_at <= l.labeled_at
+      then ROW_NUMBER() ... ORDER BY computed_at DESC, keep rn = 1.
+
+common_errors:
+  - tag: date_logic
+    explanation: Joining to the globally latest feature row leaks information from after the label.

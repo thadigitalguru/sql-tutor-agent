@@ -1,0 +1,50 @@
+id: hav_002
+title: Statuses with more than three orders
+primary_skill: having
+secondary_skills: [group_by, aggregate_count]
+difficulty: 3
+dataset: ecommerce
+module: aggregation
+prerequisites: [group_by]
+
+prompt: >
+  Return each `status` and the number of orders with that status, but only
+  for statuses that appear more than two times.
+
+concept: HAVING can filter on COUNT, not only on SUM.
+teach: >
+  You still group first. HAVING COUNT(*) > 2 keeps the busier statuses.
+  WHERE cannot test the count of a group because the group does not exist yet.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT status, COUNT(*)
+    FROM orders
+    GROUP BY status
+    HAVING COUNT(*) > 2;
+
+hints:
+  - level: 1
+    text: Count orders in each status, then drop the small groups.
+  - level: 2
+    text: Group `orders` by `status`.
+  - level: 3
+    text: Filter with HAVING COUNT(*) > 2.
+  - level: 4
+    text: |
+      SELECT status, COUNT(*)
+      FROM orders
+      GROUP BY status
+      HAVING COUNT(*) > ...
+
+common_errors:
+  - tag: having_vs_where
+    explanation: WHERE COUNT(*) is invalid because WHERE runs before grouping.

@@ -1,0 +1,57 @@
+id: ai_003
+title: Time-based train and eval split
+primary_skill: train_eval_split
+secondary_skills: [window_functions]
+difficulty: 4
+dataset: platform
+module: ai_engineering
+prerequisites: [window_functions]
+
+prompt: >
+  Split labeled entities by time, not by a random row hash. Return
+  `entity_id` and `split`, where `split` is `'eval'` for the two most
+  recently labeled entities and `'train'` for the rest.
+
+concept: Random row splits leak if the same user appears in train and eval.
+teach: >
+  Offline eval should follow how the model will be used in time. Ranking
+  labels by labeled_at and holding out the newest entities is a simple
+  temporal split. User-level hashes are another valid approach when time
+  is stationary.
+
+schema:
+  - labels
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: true
+
+reference:
+  sql: |
+    WITH ranked AS (
+      SELECT
+        entity_id,
+        ROW_NUMBER() OVER (ORDER BY labeled_at DESC) AS rn
+      FROM labels
+    )
+    SELECT
+      entity_id,
+      CASE WHEN rn <= 2 THEN 'eval' ELSE 'train' END AS split
+    FROM ranked;
+
+hints:
+  - level: 1
+    text: The holdout set should be the newest labels, not a random 20% of rows.
+  - level: 2
+    text: Rank `labels` by `labeled_at` descending.
+  - level: 3
+    text: ROW_NUMBER() and CASE WHEN rn <= 2 THEN 'eval' ELSE 'train' END.
+  - level: 4
+    text: |
+      ROW_NUMBER() OVER (ORDER BY labeled_at DESC) AS rn
+      then CASE WHEN rn <= 2 THEN 'eval' ELSE 'train' END AS split.
+
+common_errors:
+  - tag: window_logic
+    explanation: entity_id % 2 is not a temporal split and is not what the task asked for.

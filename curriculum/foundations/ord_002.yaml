@@ -1,0 +1,50 @@
+id: ord_002
+title: Five most expensive products
+primary_skill: limit
+secondary_skills: [order_by]
+difficulty: 2
+dataset: ecommerce
+module: foundations
+prerequisites: [order_by]
+
+prompt: >
+  Return `product_name` and `price` for the five most expensive products,
+  highest price first.
+
+concept: LIMIT keeps only the first n rows after sorting.
+teach: >
+  Sort first, then cut the list. In PostgreSQL this is LIMIT (or FETCH).
+  SQL Server uses TOP. This sandbox understands LIMIT.
+
+schema:
+  - products
+
+evaluation:
+  mode: result_set
+  order_matters: true
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT product_name, price
+    FROM products
+    ORDER BY price DESC
+    LIMIT 5;
+
+hints:
+  - level: 1
+    text: You need a short ranked list, not every product.
+  - level: 2
+    text: Rank by `products.price`.
+  - level: 3
+    text: ORDER BY price DESC, then LIMIT 5.
+  - level: 4
+    text: |
+      SELECT product_name, price
+      FROM products
+      ORDER BY price DESC
+      LIMIT ...
+
+common_errors:
+  - tag: ordering
+    explanation: LIMIT without ORDER BY does not mean "most expensive".

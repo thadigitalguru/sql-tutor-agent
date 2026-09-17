@@ -1,0 +1,55 @@
+id: sub_002
+title: Customers who placed a paid order
+primary_skill: subquery
+secondary_skills: [filter_in_like]
+difficulty: 4
+dataset: ecommerce
+module: advanced
+prerequisites: [filter_where, inner_join]
+
+prompt: >
+  Return `customer_id` and `name` for customers who have at least one
+  order with status `'paid'`. Each customer should appear once.
+
+concept: IN (or EXISTS) tests membership in a set returned by another query.
+teach: >
+  You can join and DISTINCT, or use a subquery of paid customer_ids.
+  Either approach is correct if the result set matches.
+
+schema:
+  - customers
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT customer_id, name
+    FROM customers
+    WHERE customer_id IN (
+      SELECT customer_id
+      FROM orders
+      WHERE status = 'paid'
+    );
+
+hints:
+  - level: 1
+    text: The customers you want are those who appear among paid orders.
+  - level: 2
+    text: Paid rows live in `orders`; names live in `customers`.
+  - level: 3
+    text: Use IN with a subquery of paid customer_id values, or JOIN plus DISTINCT.
+  - level: 4
+    text: |
+      SELECT customer_id, name
+      FROM customers
+      WHERE customer_id IN (
+        SELECT customer_id FROM orders WHERE status = ...
+      );
+
+common_errors:
+  - tag: subquery_logic
+    explanation: Joining without DISTINCT can repeat a customer once per paid order.

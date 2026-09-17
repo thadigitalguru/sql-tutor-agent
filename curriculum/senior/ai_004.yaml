@@ -1,0 +1,69 @@
+id: ai_004
+title: Offline eval without future scores
+primary_skill: eval_metrics
+secondary_skills: [inference_ops, window_functions]
+difficulty: 5
+dataset: platform
+module: ai_engineering
+prerequisites: [inference_ops]
+
+prompt: >
+  Join each label to the latest prediction for that `entity_id` whose
+  `predicted_at` is on or before `labeled_at`. Return `entity_id`,
+  `predicted_label`, `true_label`, and `is_correct` as 1 or 0.
+
+concept: Evaluation must use the score that would have been available at label time.
+teach: >
+  Comparing a label to a prediction that was written later is not a valid
+  backtest. This is the inference analogue of a point-in-time feature join.
+
+schema:
+  - predictions
+  - labels
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: true
+
+reference:
+  sql: |
+    WITH eligible AS (
+      SELECT
+        l.entity_id,
+        p.predicted_label,
+        l.true_label,
+        ROW_NUMBER() OVER (
+          PARTITION BY l.entity_id
+          ORDER BY p.predicted_at DESC
+        ) AS rn
+      FROM labels l
+      JOIN predictions p
+        ON p.entity_id = l.entity_id
+       AND p.predicted_at <= l.labeled_at
+    )
+    SELECT
+      entity_id,
+      predicted_label,
+      true_label,
+      CASE WHEN predicted_label = true_label THEN 1 ELSE 0 END AS is_correct
+    FROM eligible
+    WHERE rn = 1;
+
+hints:
+  - level: 1
+    text: Only scores that already existed at label time are fair.
+  - level: 2
+    text: Join predictions to labels on entity_id with predicted_at <= labeled_at.
+  - level: 3
+    text: Take the latest eligible prediction per entity, then flag label match as 1/0.
+  - level: 4
+    text: |
+      JOIN predictions p
+        ON p.entity_id = l.entity_id
+       AND p.predicted_at <= l.labeled_at
+      ROW_NUMBER() ORDER BY predicted_at DESC, keep rn = 1.
+
+common_errors:
+  - tag: date_logic
+    explanation: Using the globally latest prediction can include a score from after the label.

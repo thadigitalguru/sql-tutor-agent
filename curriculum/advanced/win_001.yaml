@@ -1,0 +1,55 @@
+id: win_001
+title: Rank products by price
+primary_skill: window_functions
+secondary_skills: [order_by]
+difficulty: 4
+dataset: ecommerce
+module: advanced
+prerequisites: [group_by, inner_join]
+
+prompt: >
+  Return `product_name`, `price`, and a `price_rank` column that numbers
+  products from most expensive (1) to cheapest. Ties can be broken any
+  stable way; use ROW_NUMBER ordered by price descending then product_name.
+
+concept: Window functions number or aggregate rows without collapsing them.
+teach: >
+  GROUP BY would collapse to one row per group. ROW_NUMBER() OVER (...)
+  keeps every product row and adds a rank. PARTITION BY is not needed here.
+
+schema:
+  - products
+
+evaluation:
+  mode: result_set
+  order_matters: true
+  require_column_names: true
+
+reference:
+  sql: |
+    SELECT
+      product_name,
+      price,
+      ROW_NUMBER() OVER (ORDER BY price DESC, product_name) AS price_rank
+    FROM products
+    ORDER BY price DESC, product_name;
+
+hints:
+  - level: 1
+    text: You still want one row per product, plus a rank.
+  - level: 2
+    text: Rank using `products.price`.
+  - level: 3
+    text: ROW_NUMBER() OVER (ORDER BY price DESC, product_name).
+  - level: 4
+    text: |
+      SELECT
+        product_name,
+        price,
+        ROW_NUMBER() OVER (ORDER BY price DESC, product_name) AS price_rank
+      FROM products
+      ORDER BY price DESC, product_name;
+
+common_errors:
+  - tag: window_logic
+    explanation: GROUP BY would collapse products instead of ranking them.

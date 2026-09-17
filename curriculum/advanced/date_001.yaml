@@ -1,0 +1,53 @@
+id: date_001
+title: July 2024 orders
+primary_skill: date_operations
+secondary_skills: [filter_where]
+difficulty: 2
+dataset: ecommerce
+module: advanced
+prerequisites: [filter_where]
+
+prompt: >
+  Return `order_id`, `order_date`, and `total_amount` for orders placed in
+  July 2024 (order_date from 2024-07-01 through 2024-07-31).
+
+concept: Filter dates with a range rather than a guessed function if you can.
+teach: >
+  Date syntax is dialect-specific. PostgreSQL often uses DATE_TRUNC or
+  `order_date >= DATE '2024-07-01' AND order_date < DATE '2024-08-01'`.
+  This SQLite sandbox stores dates as text in ISO form, so the same range
+  comparison works.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT order_id, order_date, total_amount
+    FROM orders
+    WHERE order_date >= '2024-07-01'
+      AND order_date < '2024-08-01';
+
+hints:
+  - level: 1
+    text: Keep a month of orders using a start and an end bound.
+  - level: 2
+    text: Filter `orders.order_date`.
+  - level: 3
+    text: Use >= '2024-07-01' and < '2024-08-01'.
+  - level: 4
+    text: |
+      SELECT order_id, order_date, total_amount
+      FROM orders
+      WHERE order_date >= '2024-07-01'
+        AND order_date < ...
+
+common_errors:
+  - tag: date_logic
+    explanation: Equality to '2024-07' will not match a full ISO date.

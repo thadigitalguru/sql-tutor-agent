@@ -6,7 +6,7 @@ INSERT INTO customers (customer_id, name, country, signup_date) VALUES
   (5, 'Wanjiku Mwangi', 'Kenya', '2024-03-18'),
   (6, 'Marie Dubois', 'France', '2024-04-02'),
   (7, 'Brian Otieno', 'Kenya', '2024-04-21'),
-  (8, 'Sofia Rossi', 'Italy', '2024-05-10');
+  (8, 'Sofia Rossi', NULL, '2024-05-10');
 
 INSERT INTO products (product_id, product_name, category, price) VALUES
   (1, 'Ceramic Mug', 'Home', 12.50),

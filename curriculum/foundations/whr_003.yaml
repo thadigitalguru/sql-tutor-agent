@@ -1,0 +1,48 @@
+id: whr_003
+title: Names that start with A
+primary_skill: filter_in_like
+secondary_skills: [filter_where]
+difficulty: 2
+dataset: ecommerce
+module: foundations
+prerequisites: [filter_where]
+
+prompt: >
+  Return `name` and `country` for customers whose name starts with the letter
+  A.
+
+concept: LIKE matches patterns. % means any number of characters.
+teach: >
+  LIKE compares against a pattern, not an exact string. `A%` means "starts
+  with A". SQL string comparison is case-sensitive in this sandbox.
+
+schema:
+  - customers
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT name, country
+    FROM customers
+    WHERE name LIKE 'A%';
+
+hints:
+  - level: 1
+    text: You need a pattern match, not an exact full-name comparison.
+  - level: 2
+    text: Filter `customers.name`.
+  - level: 3
+    text: Use LIKE with a trailing %.
+  - level: 4
+    text: |
+      SELECT name, country
+      FROM customers
+      WHERE name LIKE ...
+
+common_errors:
+  - tag: filtering
+    explanation: Equality compares the whole name, so it will not match Amina Ochieng.

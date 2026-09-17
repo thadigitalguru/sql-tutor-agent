@@ -1,0 +1,56 @@
+id: arch_003
+title: Country as of the order date
+primary_skill: scd_point_in_time
+secondary_skills: [inner_join, date_operations]
+difficulty: 5
+dataset: platform
+module: data_architecture
+prerequisites: [inner_join, date_operations]
+
+prompt: >
+  Return each `order_id` and the customer `country` that was valid at
+  `order_ts`. Use `dim_customer` valid_from / valid_to (valid_to is exclusive).
+  One row per order_id.
+
+concept: SCD Type 2 preserves history so facts can be reconstructed as-of a date.
+teach: >
+  Point-in-time joining is `fact.ts >= valid_from AND fact.ts < valid_to`.
+  Using is_current = 1 rewrites history: customer 1's February order would
+  pick up the United States even though they were still in Kenya.
+
+schema:
+  - fact_orders
+  - dim_customer
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT f.order_id, d.country
+    FROM fact_orders f
+    JOIN dim_customer d
+      ON d.customer_id = f.customer_id
+     AND f.order_ts >= d.valid_from
+     AND f.order_ts < d.valid_to
+    GROUP BY f.order_id, d.country;
+
+hints:
+  - level: 1
+    text: Customer 1 changed country. Early orders should not use the current row.
+  - level: 2
+    text: Match `dim_customer` on customer_id and the validity window around order_ts.
+  - level: 3
+    text: order_ts >= valid_from AND order_ts < valid_to, then one row per order_id.
+  - level: 4
+    text: |
+      JOIN dim_customer d
+        ON d.customer_id = f.customer_id
+       AND f.order_ts >= d.valid_from
+       AND f.order_ts < d.valid_to
+
+common_errors:
+  - tag: date_logic
+    explanation: Filtering is_current = 1 is Type 1 and fails the February Kenya order.

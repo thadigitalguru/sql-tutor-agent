@@ -48,6 +48,8 @@ class Goal(StrEnum):
     ANALYTICS = "analytics"
     INTERVIEWS = "interviews"
     DATABASE_WORK = "database_work"
+    AI_ENGINEERING = "ai_engineering"
+    DATA_ARCHITECTURE = "data_architecture"
     REFRESH = "refresh"
 
 

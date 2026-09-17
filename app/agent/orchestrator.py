@@ -10,7 +10,7 @@ from app.config import settings
 from app.curriculum.loader import get_exercise, load_exercises
 from app.curriculum.mastery import update_skill_state
 from app.curriculum.selector import select_next_exercise
-from app.curriculum.skills import SKILLS
+from app.curriculum.skills import SKILLS, seeded_skill_ids
 from app.domain import (
     Dialect,
     Evaluation,
@@ -38,6 +38,7 @@ LEVEL_MAP = {
     "joins_grouping": SqlLevel.INTERMEDIATE,
     "intermediate": SqlLevel.INTERMEDIATE,
     "advanced": SqlLevel.ADVANCED,
+    "mid_senior": SqlLevel.ADVANCED,
 }
 
 DIALECT_MAP = {
@@ -59,6 +60,12 @@ GOAL_MAP = {
     "interviews": Goal.INTERVIEWS,
     "work_with_databases": Goal.DATABASE_WORK,
     "database_work": Goal.DATABASE_WORK,
+    "database_engineering": Goal.DATABASE_WORK,
+    "ai_engineering": Goal.AI_ENGINEERING,
+    "sql_for_ai": Goal.AI_ENGINEERING,
+    "ml_engineering": Goal.AI_ENGINEERING,
+    "data_architecture": Goal.DATA_ARCHITECTURE,
+    "advanced_data_modeling": Goal.DATA_ARCHITECTURE,
     "refresh": Goal.REFRESH,
     "refresh_improve_sql": Goal.REFRESH,
 }
@@ -105,6 +112,7 @@ class Orchestrator:
                 dialect=DIALECT_MAP.get((dialect or "not_sure").lower(), Dialect.POSTGRESQL),
                 goal=GOAL_MAP.get((goal or "foundations").lower(), Goal.FOUNDATIONS),
             )
+            self._seed_level_mastery(learner_id, LEVEL_MAP.get((sql_level or "beginner").lower(), SqlLevel.BEGINNER))
 
         existing = self.repo.latest_session(learner_id) if resume else None
         if existing and existing.get("current_exercise_id") and not existing.get("ended_at"):
@@ -430,6 +438,23 @@ class Orchestrator:
 
     def public_exercise(self, exercise_id: str) -> dict:
         return self._public_exercise(get_exercise(exercise_id), 0)
+
+    def _seed_level_mastery(self, learner_id: str, sql_level: SqlLevel) -> None:
+        """Intermediate/advanced learners skip the keyword course and enter mid-senior work."""
+        for skill_id in seeded_skill_ids(sql_level.value):
+            existing = self.repo.get_skill(learner_id, skill_id)
+            if existing.attempts:
+                continue
+            self.repo.save_skill(
+                learner_id,
+                SkillState(
+                    skill_id=skill_id,
+                    mastery=0.62,
+                    attempts=1,
+                    successful_attempts=1,
+                    demonstrated_on=["prior_experience"],
+                ),
+            )
 
     def _pick_exercise(self, learner_id: str, learner: dict) -> Exercise | None:
         return select_next_exercise(

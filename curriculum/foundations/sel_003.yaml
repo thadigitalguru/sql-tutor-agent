@@ -1,0 +1,47 @@
+id: sel_003
+title: Unique customer countries
+primary_skill: select_distinct
+secondary_skills: [select_basic]
+difficulty: 1
+dataset: ecommerce
+module: foundations
+prerequisites: [select_basic]
+
+prompt: >
+  Return each distinct `country` value from `customers`, including NULL if a
+  country is missing.
+
+concept: DISTINCT removes duplicate result rows.
+teach: >
+  Without DISTINCT, Kenya would appear once per Kenyan customer. DISTINCT
+  keeps unique rows. NULL is a value in this result if any country is missing.
+
+schema:
+  - customers
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  duplicates_matter: true
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT DISTINCT country
+    FROM customers;
+
+hints:
+  - level: 1
+    text: Several customers share a country. You want each country once.
+  - level: 2
+    text: The column is `customers.country`.
+  - level: 3
+    text: SELECT DISTINCT country.
+  - level: 4
+    text: |
+      SELECT DISTINCT country
+      FROM ...
+
+common_errors:
+  - tag: duplicate_rows
+    explanation: SELECT country without DISTINCT repeats Kenya three times.

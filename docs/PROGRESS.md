@@ -28,13 +28,15 @@ Source of truth for what is running, not aspirational.
 
 ## Milestone 4 — Foundations course
 
-- [ ] 30+ exercises through joins/subqueries
+- [x] 30+ exercises through joins/subqueries
 - [x] Spaced review (selector)
 - [x] Progress UI
 - [x] Onboarding
 
-## Milestone 5 — Advanced analytics
+## Milestone 5 — Advanced analytics and mid-senior SQL
 
-- [ ] CTEs, dates, windows
+- [x] CTEs, dates, windows
 - [x] Hidden test datasets (NULL / join variants)
+- [x] Mid-senior platform dataset (star schema, SCD2, events, model logs)
+- [x] AI engineering, data architecture, database engineering, and modeling tracks
 - [ ] Readability/performance notes after correctness

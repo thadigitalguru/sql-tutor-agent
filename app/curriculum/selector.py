@@ -12,7 +12,7 @@ from app.domain import Exercise, Goal, SkillState, SqlLevel
 LEVEL_TO_DIFFICULTY = {
     SqlLevel.BEGINNER: 2,
     SqlLevel.INTERMEDIATE: 3,
-    SqlLevel.ADVANCED: 4,
+    SqlLevel.ADVANCED: 5,
 }
 
 GOAL_SKILLS: dict[Goal, set[str]] = {
@@ -39,6 +39,8 @@ GOAL_SKILLS: dict[Goal, set[str]] = {
         "case_expression",
         "date_operations",
         "window_functions",
+        "sessionization",
+        "data_grain",
     },
     Goal.INTERVIEWS: {
         "group_by",
@@ -47,16 +49,42 @@ GOAL_SKILLS: dict[Goal, set[str]] = {
         "left_join",
         "subquery",
         "window_functions",
+        "anti_join",
+        "recursive_cte",
+        "scd_point_in_time",
+        "sessionization",
     },
     Goal.DATABASE_WORK: {
-        "select_basic",
-        "filter_where",
-        "inner_join",
-        "left_join",
-        "null_handling",
+        "anti_join",
+        "recursive_cte",
+        "json_semi_structured",
+        "keyset_pagination",
         "cte",
+        "window_functions",
+        "effective_dated",
+        "data_grain",
     },
-    Goal.REFRESH: set(),  # all skills
+    Goal.AI_ENGINEERING: {
+        "inference_ops",
+        "feature_store",
+        "train_eval_split",
+        "eval_metrics",
+        "rag_retrieval",
+        "cost_attribution",
+        "sessionization",
+        "json_semi_structured",
+        "window_functions",
+    },
+    Goal.DATA_ARCHITECTURE: {
+        "star_schema",
+        "data_grain",
+        "scd_point_in_time",
+        "bridge_tables",
+        "effective_dated",
+        "recursive_cte",
+        "window_functions",
+    },
+    Goal.REFRESH: set(),
 }
 
 

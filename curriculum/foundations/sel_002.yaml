@@ -1,0 +1,46 @@
+id: sel_002
+title: Rename a product price
+primary_skill: select_aliases
+secondary_skills: [select_basic]
+difficulty: 1
+dataset: ecommerce
+module: foundations
+prerequisites: [select_basic]
+
+prompt: >
+  From `products`, return `product_name` and `price`. Name the price column
+  `unit_price`.
+
+concept: Aliases rename output columns without changing the stored data.
+teach: >
+  AS gives a result column a clearer name. The table still stores `price`.
+  This exercise checks the alias because the name is part of the task.
+
+schema:
+  - products
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: true
+
+reference:
+  sql: |
+    SELECT product_name, price AS unit_price
+    FROM products;
+
+hints:
+  - level: 1
+    text: The stored column name is not the name the task asked you to return.
+  - level: 2
+    text: You still read `price` from `products`.
+  - level: 3
+    text: Use AS unit_price (or the same alias after the column).
+  - level: 4
+    text: |
+      SELECT product_name, price AS ...
+      FROM products;
+
+common_errors:
+  - tag: misread_requirement
+    explanation: Returning price without renaming fails when aliases are required.

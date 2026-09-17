@@ -1,0 +1,55 @@
+id: set_001
+title: Users who are not on any current roster
+primary_skill: set_operations
+secondary_skills: [anti_join]
+difficulty: 4
+dataset: platform
+module: data_modeling
+prerequisites: [select_basic]
+
+prompt: >
+  Return `user_id` for users who have no current membership
+  (`effective_to` IS NULL). Use EXCEPT (or an equivalent anti-join).
+  One column, unique user ids.
+
+concept: Set differences express "in A but not in B" without a join in the mental model.
+teach: >
+  EXCEPT is the set-based spelling of an anti-join. PostgreSQL EXCEPT
+  matches SQLite. SQL Server uses EXCEPT as well. UNION would be the
+  wrong operator here because it adds rows rather than subtracting them.
+
+schema:
+  - users
+  - account_members
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  duplicates_matter: true
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT user_id
+    FROM users
+    EXCEPT
+    SELECT user_id
+    FROM account_members
+    WHERE effective_to IS NULL;
+
+hints:
+  - level: 1
+    text: Start from all users, then remove those who currently sit on a roster.
+  - level: 2
+    text: Current memberships are `account_members` rows with effective_to IS NULL.
+  - level: 3
+    text: EXCEPT those user_ids from users.user_id.
+  - level: 4
+    text: |
+      SELECT user_id FROM users
+      EXCEPT
+      SELECT user_id FROM account_members WHERE effective_to IS NULL;
+
+common_errors:
+  - tag: filtering
+    explanation: UNION combines sets; it does not subtract current members.

@@ -1,0 +1,46 @@
+id: agg_003
+title: Average product price
+primary_skill: aggregate_sum
+secondary_skills: [aggregate_count]
+difficulty: 1
+dataset: ecommerce
+module: foundations
+prerequisites: [aggregate_count]
+
+prompt: >
+  Return a single value: the average `price` of all products.
+
+concept: AVG ignores NULL inputs and returns the mean of the remaining values.
+teach: >
+  AVG(price) is the mean. COUNT(price) would skip NULL prices, while
+  COUNT(*) counts rows. There are no NULL prices in this table.
+
+schema:
+  - products
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT AVG(price)
+    FROM products;
+
+hints:
+  - level: 1
+    text: You want one summary number for the whole table.
+  - level: 2
+    text: Average `products.price`.
+  - level: 3
+    text: Use AVG(price).
+  - level: 4
+    text: |
+      SELECT AVG(price)
+      FROM ...
+
+common_errors:
+  - tag: aggregation
+    explanation: Selecting price without AVG returns one row per product.

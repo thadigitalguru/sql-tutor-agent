@@ -1,0 +1,50 @@
+id: nul_002
+title: Customers with unknown country
+primary_skill: null_handling
+secondary_skills: [filter_where]
+difficulty: 2
+dataset: ecommerce
+module: foundations
+prerequisites: [filter_where]
+hidden_variants:
+  - hidden_nulls
+
+prompt: >
+  Return `customer_id`, `name`, and `country` for customers whose country
+  is unknown.
+
+concept: Missing text is still NULL. Test it with IS NULL.
+teach: >
+  An empty-looking country is not an empty string here. It is NULL, so
+  `country = ''` will not find it.
+
+schema:
+  - customers
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT customer_id, name, country
+    FROM customers
+    WHERE country IS NULL;
+
+hints:
+  - level: 1
+    text: Unknown is not the same as a blank country name.
+  - level: 2
+    text: The missing values are in `customers.country`.
+  - level: 3
+    text: Use IS NULL.
+  - level: 4
+    text: |
+      SELECT customer_id, name, country
+      FROM customers
+      WHERE country IS ...
+
+common_errors:
+  - tag: null_handling
+    explanation: country = NULL never matches.

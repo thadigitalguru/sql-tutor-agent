@@ -1,0 +1,54 @@
+id: join_003
+title: Paid orders with customer names
+primary_skill: inner_join
+secondary_skills: [filter_where]
+difficulty: 3
+dataset: ecommerce
+module: joins
+prerequisites: [inner_join, filter_where]
+
+prompt: >
+  Return `order_id`, customer `name`, and `total_amount` for orders whose
+  status is `'paid'`.
+
+concept: Filter after you know which tables you need, or filter in WHERE.
+teach: >
+  Join orders to customers, then keep paid orders. WHERE status = 'paid'
+  is a row filter, not a group filter.
+
+schema:
+  - customers
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT o.order_id, c.name, o.total_amount
+    FROM orders o
+    JOIN customers c
+      ON c.customer_id = o.customer_id
+    WHERE o.status = 'paid';
+
+hints:
+  - level: 1
+    text: You need names and a subset of orders.
+  - level: 2
+    text: Join `orders` to `customers` on customer_id, then filter status.
+  - level: 3
+    text: WHERE o.status = 'paid' after the JOIN.
+  - level: 4
+    text: |
+      SELECT o.order_id, c.name, o.total_amount
+      FROM orders o
+      JOIN customers c
+        ON c.customer_id = o.customer_id
+      WHERE o.status = ...
+
+common_errors:
+  - tag: filtering
+    explanation: Joining without the status filter returns pending and cancelled orders too.

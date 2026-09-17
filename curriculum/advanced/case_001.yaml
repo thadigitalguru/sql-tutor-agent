@@ -1,0 +1,52 @@
+id: case_001
+title: Label paid versus other orders
+primary_skill: case_expression
+secondary_skills: [select_basic]
+difficulty: 2
+dataset: ecommerce
+module: advanced
+prerequisites: [filter_where]
+
+prompt: >
+  From `orders`, return `order_id`, `status`, and a column `payment_group`
+  that is `'paid'` when status is paid and `'other'` otherwise.
+
+concept: CASE maps values into categories inside SELECT.
+teach: >
+  CASE WHEN ... THEN ... ELSE ... END is an expression. It does not
+  replace WHERE; it adds a computed column.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: true
+
+reference:
+  sql: |
+    SELECT
+      order_id,
+      status,
+      CASE WHEN status = 'paid' THEN 'paid' ELSE 'other' END AS payment_group
+    FROM orders;
+
+hints:
+  - level: 1
+    text: You are categorizing each row, not filtering rows away.
+  - level: 2
+    text: The input column is `orders.status`.
+  - level: 3
+    text: Use CASE WHEN status = 'paid' THEN 'paid' ELSE 'other' END.
+  - level: 4
+    text: |
+      SELECT
+        order_id,
+        status,
+        CASE WHEN status = 'paid' THEN 'paid' ELSE 'other' END AS payment_group
+      FROM orders;
+
+common_errors:
+  - tag: misread_requirement
+    explanation: Filtering to paid rows drops the 'other' category the task asked for.

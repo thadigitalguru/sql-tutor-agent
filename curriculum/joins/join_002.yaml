@@ -1,0 +1,51 @@
+id: join_002
+title: Line items with product names
+primary_skill: inner_join
+secondary_skills: [select_basic]
+difficulty: 3
+dataset: ecommerce
+module: joins
+prerequisites: [select_basic]
+
+prompt: >
+  Return `order_id`, `product_name`, and `quantity` for every row in
+  `order_items`.
+
+concept: Join on the key that actually relates the tables.
+teach: >
+  Quantities live on `order_items`. Names live on `products`. Match
+  `product_id`.
+
+schema:
+  - order_items
+  - products
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT i.order_id, p.product_name, i.quantity
+    FROM order_items i
+    JOIN products p
+      ON p.product_id = i.product_id;
+
+hints:
+  - level: 1
+    text: Quantity and product name do not live on the same table.
+  - level: 2
+    text: "`order_items.product_id` refers to `products.product_id`."
+  - level: 3
+    text: JOIN products ON product_id.
+  - level: 4
+    text: |
+      SELECT i.order_id, p.product_name, i.quantity
+      FROM order_items i
+      JOIN products p
+        ON ...
+
+common_errors:
+  - tag: missing_join
+    explanation: Selecting from order_items alone cannot return product_name.

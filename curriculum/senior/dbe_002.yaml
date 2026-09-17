@@ -1,0 +1,52 @@
+id: dbe_002
+title: Next page after a known event
+primary_skill: keyset_pagination
+secondary_skills: [order_by, limit]
+difficulty: 4
+dataset: platform
+module: database_engineering
+prerequisites: [order_by, limit]
+
+prompt: >
+  Events are ordered by `event_ts`, then `event_id`. Return `event_id`,
+  `user_id`, and `event_ts` for the next three events after event_id 3
+  (the purchase at 2024-06-01 10:08:00). Preserve that order.
+
+concept: Keyset / seek pagination is stable and index-friendly compared with OFFSET.
+teach: >
+  OFFSET 3 LIMIT 3 scans and throws away rows. A seek
+  WHERE (event_ts, event_id) > (last_ts, last_id) can use an index on
+  those columns. PostgreSQL row-value comparison works the same way.
+
+schema:
+  - events
+
+evaluation:
+  mode: result_set
+  order_matters: true
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT event_id, user_id, event_ts
+    FROM events
+    WHERE (event_ts, event_id) > ('2024-06-01 10:08:00', 3)
+    ORDER BY event_ts, event_id
+    LIMIT 3;
+
+hints:
+  - level: 1
+    text: You need the next page in a defined order, not an OFFSET guess.
+  - level: 2
+    text: Order is (`event_ts`, `event_id`). The last seen key is (10:08:00, 3).
+  - level: 3
+    text: WHERE (event_ts, event_id) > (...) ORDER BY the same columns LIMIT 3.
+  - level: 4
+    text: |
+      WHERE (event_ts, event_id) > ('2024-06-01 10:08:00', 3)
+      ORDER BY event_ts, event_id
+      LIMIT 3;
+
+common_errors:
+  - tag: ordering
+    explanation: OFFSET without the same ORDER BY is not a stable page.

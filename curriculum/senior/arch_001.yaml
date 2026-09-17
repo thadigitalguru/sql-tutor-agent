@@ -1,0 +1,55 @@
+id: arch_001
+title: Revenue by current customer country
+primary_skill: star_schema
+secondary_skills: [group_by, inner_join]
+difficulty: 4
+dataset: platform
+module: data_architecture
+prerequisites: [inner_join, group_by]
+
+prompt: >
+  Using `fact_orders` and the current version of `dim_customer`
+  (`is_current = 1`), return each `country` and the sum of `amount`.
+
+concept: A star-schema query joins facts to the current dimension members.
+teach: >
+  Facts store business keys or surrogate keys; dimensions hold descriptive
+  attributes. Joining to is_current = 1 is Type-1 style (attributes as they
+  are now). Historical truth needs the SCD valid-from/to window instead.
+
+schema:
+  - fact_orders
+  - dim_customer
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT d.country, SUM(f.amount)
+    FROM fact_orders f
+    JOIN dim_customer d
+      ON d.customer_id = f.customer_id
+     AND d.is_current = 1
+    GROUP BY d.country;
+
+hints:
+  - level: 1
+    text: Amounts live on the fact. Country lives on the dimension.
+  - level: 2
+    text: Use the `dim_customer` rows where `is_current = 1`.
+  - level: 3
+    text: JOIN on customer_id, filter is_current, then SUM(amount) by country.
+  - level: 4
+    text: |
+      JOIN dim_customer d
+        ON d.customer_id = f.customer_id
+       AND d.is_current = 1
+      GROUP BY d.country;
+
+common_errors:
+  - tag: join_condition
+    explanation: Joining every SCD version multiplies each order by the number of customer history rows.

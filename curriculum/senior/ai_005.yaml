@@ -1,0 +1,51 @@
+id: ai_005
+title: Successful model spend
+primary_skill: cost_attribution
+secondary_skills: [group_by, filter_where]
+difficulty: 4
+dataset: platform
+module: ai_engineering
+prerequisites: [group_by]
+
+prompt: >
+  From `model_runs`, return `model_name` and total `cost_usd` for runs
+  whose status is `'success'`. One row per model.
+
+concept: Usage tables are the source of truth for LLM / pipeline cost.
+teach: >
+  Failed calls often still have a row. Cost rollups should filter to the
+  billable status the finance definition uses. Here that is success only.
+
+schema:
+  - model_runs
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT model_name, SUM(cost_usd)
+    FROM model_runs
+    WHERE status = 'success'
+    GROUP BY model_name;
+
+hints:
+  - level: 1
+    text: Not every run should hit the cost total.
+  - level: 2
+    text: Filter `model_runs.status` before aggregating `cost_usd`.
+  - level: 3
+    text: WHERE status = 'success' then GROUP BY model_name.
+  - level: 4
+    text: |
+      SELECT model_name, SUM(cost_usd)
+      FROM model_runs
+      WHERE status = 'success'
+      GROUP BY model_name;
+
+common_errors:
+  - tag: filtering
+    explanation: Including failed runs changes gpt-4o even when its failed cost is zero, and is the wrong definition.

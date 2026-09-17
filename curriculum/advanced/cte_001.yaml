@@ -1,0 +1,59 @@
+id: cte_001
+title: High spenders as a named step
+primary_skill: cte
+secondary_skills: [group_by, having]
+difficulty: 4
+dataset: ecommerce
+module: advanced
+prerequisites: [group_by]
+
+prompt: >
+  Using a CTE named `customer_spend`, return `customer_id` and total order
+  amount for customers whose total across all orders is greater than 500.
+
+concept: A CTE names an intermediate result so the final SELECT stays readable.
+teach: >
+  WITH customer_spend AS (...) builds a named table for this query only.
+  Then SELECT from it. The result should match a GROUP BY / HAVING query.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    WITH customer_spend AS (
+      SELECT customer_id, SUM(total_amount) AS total
+      FROM orders
+      GROUP BY customer_id
+    )
+    SELECT customer_id, total
+    FROM customer_spend
+    WHERE total > 500;
+
+hints:
+  - level: 1
+    text: Split the work into "totals per customer" then "keep the large totals".
+  - level: 2
+    text: The totals come from `orders.total_amount`.
+  - level: 3
+    text: WITH customer_spend AS (GROUP BY ...) then filter total > 500.
+  - level: 4
+    text: |
+      WITH customer_spend AS (
+        SELECT customer_id, SUM(total_amount) AS total
+        FROM orders
+        GROUP BY customer_id
+      )
+      SELECT customer_id, total
+      FROM customer_spend
+      WHERE total > ...
+
+common_errors:
+  - tag: grouping
+    explanation: Filtering totals still requires a grouped sum, whether or not you use a CTE.

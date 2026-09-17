@@ -1,0 +1,58 @@
+id: dbe_001
+title: Accounts that never had a member
+primary_skill: anti_join
+secondary_skills: [left_join, subquery]
+difficulty: 4
+dataset: platform
+module: database_engineering
+prerequisites: [left_join]
+
+prompt: >
+  Return `account_id` and `account_name` for accounts with no rows in
+  `account_members` at all.
+
+concept: Absence is an anti-join. Prefer NOT EXISTS for correlated "no child rows".
+teach: >
+  NOT EXISTS is usually the safest anti-join: it does not duplicate the
+  left side and it treats NULL keys correctly. NOT IN (subquery) is
+  dangerous if the subquery can return NULL. LEFT JOIN ... WHERE right.key
+  IS NULL is also valid.
+
+schema:
+  - accounts
+  - account_members
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT a.account_id, a.account_name
+    FROM accounts a
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM account_members m
+      WHERE m.account_id = a.account_id
+    );
+
+hints:
+  - level: 1
+    text: You are looking for accounts with no related membership rows.
+  - level: 2
+    text: The child table is `account_members`.
+  - level: 3
+    text: Use NOT EXISTS (or LEFT JOIN ... WHERE m.account_id IS NULL).
+  - level: 4
+    text: |
+      SELECT a.account_id, a.account_name
+      FROM accounts a
+      WHERE NOT EXISTS (
+        SELECT 1 FROM account_members m
+        WHERE m.account_id = a.account_id
+      );
+
+common_errors:
+  - tag: missing_join
+    explanation: An INNER JOIN to account_members can only return accounts that do have members.

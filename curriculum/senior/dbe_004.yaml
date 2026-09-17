@@ -1,0 +1,64 @@
+id: dbe_004
+title: Everyone under an engineering manager
+primary_skill: recursive_cte
+secondary_skills: [cte]
+difficulty: 5
+dataset: platform
+module: database_engineering
+prerequisites: [cte]
+
+prompt: >
+  Using a recursive CTE on `employees`, return `employee_id` and `name`
+  for everyone who reports to Luis Alvarez (`employee_id = 2`) at any
+  depth. Do not include Luis himself.
+
+concept: Adjacent-list hierarchies are walked with recursive UNION ALL.
+teach: >
+  The anchor member selects the starting manager's direct reports, or
+  the manager plus a depth filter. The recursive member joins
+  employees.manager_id to the working set. PostgreSQL and SQLite both
+  support WITH RECURSIVE. Cap depth in production.
+
+schema:
+  - employees
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    WITH RECURSIVE reports AS (
+      SELECT employee_id, name, manager_id, 0 AS depth
+      FROM employees
+      WHERE employee_id = 2
+      UNION ALL
+      SELECT e.employee_id, e.name, e.manager_id, r.depth + 1
+      FROM employees e
+      JOIN reports r
+        ON e.manager_id = r.employee_id
+    )
+    SELECT employee_id, name
+    FROM reports
+    WHERE depth > 0;
+
+hints:
+  - level: 1
+    text: The org chart is a tree stored as manager_id, not a nested document.
+  - level: 2
+    text: Start at employee_id 2 and walk rows whose manager_id is already in the set.
+  - level: 3
+    text: WITH RECURSIVE ... UNION ALL join employees to the CTE on manager_id.
+  - level: 4
+    text: |
+      WITH RECURSIVE reports AS (
+        SELECT ... WHERE employee_id = 2
+        UNION ALL
+        SELECT e... FROM employees e JOIN reports r ON e.manager_id = r.employee_id
+      )
+      SELECT employee_id, name FROM reports WHERE depth > 0;
+
+common_errors:
+  - tag: subquery_logic
+    explanation: WHERE manager_id = 2 only returns direct reports, not deeper descendants.

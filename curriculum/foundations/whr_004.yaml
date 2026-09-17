@@ -1,0 +1,50 @@
+id: whr_004
+title: Cancelled or tiny orders
+primary_skill: boolean_logic
+secondary_skills: [filter_where]
+difficulty: 2
+dataset: ecommerce
+module: foundations
+prerequisites: [filter_where]
+
+prompt: >
+  Return `order_id`, `status`, and `total_amount` for orders that are
+  cancelled or have a `total_amount` below 20.
+
+concept: OR keeps a row if either condition is true. Parentheses keep intent clear.
+teach: >
+  AND and OR do not have the everyday-English grouping you might expect.
+  When mixing them later, use parentheses. Here a single OR is enough.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT order_id, status, total_amount
+    FROM orders
+    WHERE status = 'cancelled'
+       OR total_amount < 20;
+
+hints:
+  - level: 1
+    text: A row can qualify in two different ways.
+  - level: 2
+    text: Look at `status` and `total_amount`.
+  - level: 3
+    text: Connect the tests with OR.
+  - level: 4
+    text: |
+      SELECT order_id, status, total_amount
+      FROM orders
+      WHERE status = 'cancelled'
+         OR total_amount < ...
+
+common_errors:
+  - tag: filtering
+    explanation: AND would require a cancelled order that is also below 20.

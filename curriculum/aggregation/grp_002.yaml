@@ -1,0 +1,47 @@
+id: grp_002
+title: Orders by status
+primary_skill: group_by
+secondary_skills: [aggregate_count]
+difficulty: 3
+dataset: ecommerce
+module: aggregation
+prerequisites: [aggregate_count]
+
+prompt: >
+  Return each order `status` and how many orders have that status.
+
+concept: GROUP BY works with COUNT as well as SUM.
+teach: >
+  Each unique status becomes one group. COUNT(*) tells you the size of
+  that group.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT status, COUNT(*)
+    FROM orders
+    GROUP BY status;
+
+hints:
+  - level: 1
+    text: You want one row per status, not per order.
+  - level: 2
+    text: Group `orders.status`.
+  - level: 3
+    text: SELECT status, COUNT(*) ... GROUP BY status.
+  - level: 4
+    text: |
+      SELECT status, COUNT(*)
+      FROM orders
+      GROUP BY ...
+
+common_errors:
+  - tag: grouping
+    explanation: COUNT without GROUP BY is a single overall total.

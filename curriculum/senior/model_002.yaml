@@ -1,0 +1,71 @@
+id: model_002
+title: Session count from event gaps
+primary_skill: sessionization
+secondary_skills: [window_functions]
+difficulty: 5
+dataset: platform
+module: data_modeling
+prerequisites: [window_functions]
+
+prompt: >
+  Define a new session whenever a user's gap from the previous event is
+  more than 30 minutes, or when there is no previous event. Return
+  `user_id` and `session_count`.
+
+concept: Sessions are derived from ordered events, not stored as a foreign key.
+teach: >
+  LAG(event_ts) PARTITION BY user_id ORDER BY event_ts yields the previous
+  timestamp. Compare the gap to a timeout (30 minutes here). In PostgreSQL
+  use EXTRACT(EPOCH FROM (event_ts - prev_ts)) / 60. This SQLite sandbox
+  uses (julianday(event_ts) - julianday(prev_ts)) * 24 * 60.
+
+schema:
+  - events
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    WITH ordered AS (
+      SELECT
+        user_id,
+        event_ts,
+        lag(event_ts) OVER (
+          PARTITION BY user_id
+          ORDER BY event_ts
+        ) AS prev_ts
+      FROM events
+    ),
+    flagged AS (
+      SELECT
+        user_id,
+        CASE
+          WHEN prev_ts IS NULL THEN 1
+          WHEN (julianday(event_ts) - julianday(prev_ts)) * 24 * 60 > 30 THEN 1
+          ELSE 0
+        END AS new_session
+      FROM ordered
+    )
+    SELECT user_id, SUM(new_session) AS session_count
+    FROM flagged
+    GROUP BY user_id;
+
+hints:
+  - level: 1
+    text: A session is a cluster of events close together in time for one user.
+  - level: 2
+    text: Look at each user's previous `event_ts` with LAG.
+  - level: 3
+    text: Flag a new session when the gap is > 30 minutes, then SUM the flags.
+  - level: 4
+    text: |
+      lag(event_ts) OVER (PARTITION BY user_id ORDER BY event_ts)
+      then CASE WHEN gap > 30 minutes THEN 1 ELSE 0 END
+      then SUM per user_id.
+
+common_errors:
+  - tag: window_logic
+    explanation: Counting events is not the same as counting sessions.

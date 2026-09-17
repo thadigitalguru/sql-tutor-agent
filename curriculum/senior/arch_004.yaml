@@ -1,0 +1,59 @@
+id: arch_004
+title: Current members of enterprise accounts
+primary_skill: bridge_tables
+secondary_skills: [inner_join, effective_dated]
+difficulty: 4
+dataset: platform
+module: data_architecture
+prerequisites: [inner_join]
+
+prompt: >
+  Return `user_id`, `email`, and `account_name` for users who currently
+  belong to an account whose plan is `'enterprise'`. A membership is
+  current when `effective_to` is NULL.
+
+concept: Many-to-many relationships are modeled with a bridge / associative table.
+teach: >
+  Users and accounts do not join directly. `account_members` is the bridge.
+  Current vs historical membership is a separate concern from the account
+  plan attribute.
+
+schema:
+  - users
+  - accounts
+  - account_members
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT u.user_id, u.email, a.account_name
+    FROM users u
+    JOIN account_members m
+      ON m.user_id = u.user_id
+     AND m.effective_to IS NULL
+    JOIN accounts a
+      ON a.account_id = m.account_id
+    WHERE a.plan = 'enterprise';
+
+hints:
+  - level: 1
+    text: Users connect to accounts through a third table.
+  - level: 2
+    text: Join `account_members` and keep rows where effective_to IS NULL.
+  - level: 3
+    text: Then join `accounts` and filter plan = 'enterprise'.
+  - level: 4
+    text: |
+      JOIN account_members m
+        ON m.user_id = u.user_id
+       AND m.effective_to IS NULL
+      JOIN accounts a ON a.account_id = m.account_id
+      WHERE a.plan = 'enterprise';
+
+common_errors:
+  - tag: missing_join
+    explanation: Joining users to accounts without the bridge invents a key that does not exist.

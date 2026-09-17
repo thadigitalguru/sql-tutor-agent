@@ -1,0 +1,49 @@
+id: sub_001
+title: Products priced above average
+primary_skill: subquery
+secondary_skills: [aggregate_sum, filter_where]
+difficulty: 4
+dataset: ecommerce
+module: advanced
+prerequisites: [filter_where, aggregate_sum]
+
+prompt: >
+  Return `product_name` and `price` for products whose price is greater
+  than the average product price.
+
+concept: A scalar subquery can compute a value used in WHERE.
+teach: >
+  The inner query returns one number: AVG(price). The outer query compares
+  each product to that number. You do not need to hard-code the average.
+
+schema:
+  - products
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT product_name, price
+    FROM products
+    WHERE price > (SELECT AVG(price) FROM products);
+
+hints:
+  - level: 1
+    text: The cutoff value comes from the same table, not from a literal.
+  - level: 2
+    text: Average `products.price`, then compare each row to it.
+  - level: 3
+    text: Use a subquery in WHERE with AVG(price).
+  - level: 4
+    text: |
+      SELECT product_name, price
+      FROM products
+      WHERE price > (SELECT AVG(price) FROM products);
+
+common_errors:
+  - tag: subquery_logic
+    explanation: Hard-coding a guessed average will fail if the data changes.

@@ -1,0 +1,56 @@
+id: model_003
+title: Employees who manage nobody
+primary_skill: anti_join
+secondary_skills: [recursive_cte]
+difficulty: 4
+dataset: platform
+module: data_modeling
+prerequisites: [left_join]
+
+prompt: >
+  Return `employee_id`, `name`, and `title` for employees who are not
+  anyone's manager (leaf nodes in the org tree).
+
+concept: Leaf nodes are an anti-join of a table to itself.
+teach: >
+  In an adjacency-list org model, managers are employee_ids that appear in
+  manager_id. People who never appear there have no direct reports.
+  This pattern also finds unused dimension members and orphan parents.
+
+schema:
+  - employees
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT e.employee_id, e.name, e.title
+    FROM employees e
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM employees r
+      WHERE r.manager_id = e.employee_id
+    );
+
+hints:
+  - level: 1
+    text: Some people appear as someone else's manager_id. Leaves do not.
+  - level: 2
+    text: Self-check `employees` against its own `manager_id` column.
+  - level: 3
+    text: NOT EXISTS (SELECT 1 FROM employees r WHERE r.manager_id = e.employee_id).
+  - level: 4
+    text: |
+      SELECT e.employee_id, e.name, e.title
+      FROM employees e
+      WHERE NOT EXISTS (
+        SELECT 1 FROM employees r
+        WHERE r.manager_id = e.employee_id
+      );
+
+common_errors:
+  - tag: missing_join
+    explanation: WHERE manager_id IS NULL finds the CTO, who is a root, not a leaf.

@@ -1,0 +1,67 @@
+id: ai_001
+title: Latest prediction per entity
+primary_skill: inference_ops
+secondary_skills: [window_functions]
+difficulty: 4
+dataset: platform
+module: ai_engineering
+prerequisites: [window_functions]
+
+prompt: >
+  From `predictions`, return `entity_id`, `predicted_label`, and `score`
+  for the latest prediction of each entity (greatest `predicted_at`).
+  One row per entity.
+
+concept: Scoring tables are append-only. Production reads the current row per key.
+teach: >
+  Model serving and feature stores usually keep history. ROW_NUMBER()
+  PARTITION BY entity ORDER BY predicted_at DESC is the set-based way to
+  take the current score without a correlated subquery per entity.
+
+schema:
+  - predictions
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    WITH ranked AS (
+      SELECT
+        entity_id,
+        predicted_label,
+        score,
+        ROW_NUMBER() OVER (
+          PARTITION BY entity_id
+          ORDER BY predicted_at DESC
+        ) AS rn
+      FROM predictions
+    )
+    SELECT entity_id, predicted_label, score
+    FROM ranked
+    WHERE rn = 1;
+
+hints:
+  - level: 1
+    text: Several rows can exist for the same entity. You want only the newest.
+  - level: 2
+    text: Partition `predictions` by `entity_id` and order by `predicted_at`.
+  - level: 3
+    text: Use ROW_NUMBER() OVER (...) and keep rn = 1.
+  - level: 4
+    text: |
+      WITH ranked AS (
+        SELECT ...,
+          ROW_NUMBER() OVER (PARTITION BY entity_id ORDER BY predicted_at DESC) AS rn
+        FROM predictions
+      )
+      SELECT entity_id, predicted_label, score
+      FROM ranked
+      WHERE rn = 1;
+
+common_errors:
+  - tag: window_logic
+    explanation: MAX(predicted_at) without a join back drops the label that belongs to that timestamp.
