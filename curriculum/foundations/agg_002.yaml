@@ -1,0 +1,48 @@
+id: agg_002
+title: Paid order revenue
+primary_skill: aggregate_sum
+secondary_skills: [filter_where]
+difficulty: 2
+dataset: ecommerce
+module: foundations
+prerequisites: [aggregate_count, filter_where]
+
+prompt: >
+  Return the total of `total_amount` for orders whose status is `'paid'`.
+
+concept: SUM adds numeric values. Filter rows before aggregating.
+teach: >
+  WHERE still runs before the aggregate, so you can add only the paid
+  orders. Unpaid or cancelled amounts should not be in this total.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT SUM(total_amount)
+    FROM orders
+    WHERE status = 'paid';
+
+hints:
+  - level: 1
+    text: You need one number, not one row per order.
+  - level: 2
+    text: Add `orders.total_amount`, but only for paid orders.
+  - level: 3
+    text: Use SUM with a WHERE clause on status.
+  - level: 4
+    text: |
+      SELECT SUM(total_amount)
+      FROM orders
+      WHERE status = ...
+
+common_errors:
+  - tag: filtering
+    explanation: Summing every order includes cancelled and pending amounts.

@@ -1,0 +1,54 @@
+id: grp_001
+title: Spending by customer
+primary_skill: group_by
+secondary_skills: [aggregate_sum]
+difficulty: 3
+dataset: ecommerce
+module: aggregation
+prerequisites: [select_basic, aggregate_sum]
+
+prompt: >
+  Return each `customer_id` and the total of `total_amount` they have
+  ordered. Use every row in `orders`. One output row per customer who
+  has at least one order.
+
+concept: GROUP BY builds one summary row per group.
+teach: >
+  SUM(total_amount) needs to know which rows belong together. GROUP BY
+  customer_id says "add amounts within each customer". Written SQL order
+  is not the same as logical processing order: FROM, WHERE, GROUP BY,
+  then SELECT.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT customer_id, SUM(total_amount)
+    FROM orders
+    GROUP BY customer_id;
+
+hints:
+  - level: 1
+    text: You need one output row per customer, not per order.
+  - level: 2
+    text: The grouping column is `orders.customer_id`.
+  - level: 3
+    text: Use SUM(total_amount) together with GROUP BY customer_id.
+  - level: 4
+    text: |
+      SELECT customer_id, SUM(total_amount)
+      FROM orders
+      GROUP BY ...
+
+common_errors:
+  - tag: grouping
+    explanation: Selecting customer_id with SUM without GROUP BY is invalid or wrong.
+  - tag: aggregation
+    explanation: A total without grouping is one number for the whole table.

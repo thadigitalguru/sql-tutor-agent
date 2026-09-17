@@ -1,0 +1,48 @@
+id: whr_001
+title: Customers in Kenya
+primary_skill: filter_where
+secondary_skills: [select_basic]
+difficulty: 1
+dataset: ecommerce
+module: foundations
+prerequisites: [select_basic]
+
+prompt: >
+  Return the `name` and `country` of customers whose country is Kenya.
+
+concept: WHERE keeps only the rows that match a condition.
+teach: >
+  WHERE filters rows before they are returned. Text values need quotes.
+  SQL compares values exactly, so 'Kenya' is not the same as 'kenya' unless
+  the database is configured otherwise.
+
+schema:
+  - customers
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT name, country
+    FROM customers
+    WHERE country = 'Kenya';
+
+hints:
+  - level: 1
+    text: Start from all customers, then keep only some of them.
+  - level: 2
+    text: The column that describes location is `country`.
+  - level: 3
+    text: Use WHERE with a text comparison. Text literals use single quotes.
+  - level: 4
+    text: |
+      SELECT name, country
+      FROM customers
+      WHERE country = ...
+
+common_errors:
+  - tag: filtering
+    explanation: Missing WHERE returns every customer.

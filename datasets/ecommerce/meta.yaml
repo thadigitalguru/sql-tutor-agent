@@ -1,0 +1,10 @@
+id: ecommerce
+title: Shop analytics
+description: >
+  A small store dataset used across beginner modules so the learner can inspect
+  every row by hand.
+tables:
+  - customers
+  - products
+  - orders
+  - order_items

@@ -1,0 +1,48 @@
+id: ord_001
+title: Products by price
+primary_skill: order_by
+secondary_skills: [select_basic]
+difficulty: 1
+dataset: ecommerce
+module: foundations
+prerequisites: [select_basic]
+
+prompt: >
+  Return `product_name` and `price` for every product, sorted from the
+  highest price to the lowest.
+
+concept: ORDER BY controls the sequence of the result.
+teach: >
+  Without ORDER BY, row order is not guaranteed. DESC puts larger values
+  first. ASC is the default.
+
+schema:
+  - products
+
+evaluation:
+  mode: result_set
+  order_matters: true
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT product_name, price
+    FROM products
+    ORDER BY price DESC;
+
+hints:
+  - level: 1
+    text: The rows need a defined sequence, not just the right columns.
+  - level: 2
+    text: Sort using the `price` column on `products`.
+  - level: 3
+    text: ORDER BY price DESC puts the most expensive product first.
+  - level: 4
+    text: |
+      SELECT product_name, price
+      FROM products
+      ORDER BY ...
+
+common_errors:
+  - tag: ordering
+    explanation: Missing DESC sorts cheapest-first.

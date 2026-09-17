@@ -1,0 +1,52 @@
+id: hav_001
+title: Customers who spent more than 500
+primary_skill: having
+secondary_skills: [group_by, aggregate_sum]
+difficulty: 3
+dataset: ecommerce
+module: aggregation
+prerequisites: [group_by]
+
+prompt: >
+  Return each `customer_id` and their total order amount for customers
+  whose total across all orders is greater than 500.
+
+concept: HAVING filters groups after aggregation.
+teach: >
+  WHERE filters individual order rows before grouping. The per-customer
+  total does not exist yet at that stage. HAVING filters the grouped
+  result.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT customer_id, SUM(total_amount)
+    FROM orders
+    GROUP BY customer_id
+    HAVING SUM(total_amount) > 500;
+
+hints:
+  - level: 1
+    text: First build a total per customer, then keep only the large totals.
+  - level: 2
+    text: Group `orders` by `customer_id` and sum `total_amount`.
+  - level: 3
+    text: Filter the grouped totals with HAVING, not WHERE.
+  - level: 4
+    text: |
+      SELECT customer_id, SUM(total_amount)
+      FROM orders
+      GROUP BY customer_id
+      HAVING SUM(total_amount) > ...
+
+common_errors:
+  - tag: having_vs_where
+    explanation: WHERE SUM(total_amount) > 500 fails because WHERE runs before grouping.

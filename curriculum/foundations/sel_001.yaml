@@ -1,0 +1,45 @@
+id: sel_001
+title: Customer names and countries
+primary_skill: select_basic
+secondary_skills: []
+difficulty: 1
+dataset: ecommerce
+module: foundations
+prerequisites: []
+
+prompt: >
+  From `customers`, return each customer's `name` and `country`.
+
+concept: Choose only the columns you need.
+teach: >
+  SELECT lists the columns you want back. Name them in the order you want
+  them to appear. You do not have to return every column.
+
+schema:
+  - customers
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT name, country
+    FROM customers;
+
+hints:
+  - level: 1
+    text: You only need two pieces of information from each customer row.
+  - level: 2
+    text: Both columns live on the `customers` table.
+  - level: 3
+    text: Use SELECT with `name` and `country`.
+  - level: 4
+    text: |
+      SELECT name, country
+      FROM ...
+
+common_errors:
+  - tag: misread_requirement
+    explanation: SELECT * returns extra columns that the task did not ask for.

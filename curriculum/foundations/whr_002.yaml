@@ -1,0 +1,52 @@
+id: whr_002
+title: Large paid orders
+primary_skill: boolean_logic
+secondary_skills: [filter_where, comparison_operators]
+difficulty: 2
+dataset: ecommerce
+module: foundations
+prerequisites: [filter_where]
+
+prompt: >
+  From `orders`, return `order_id`, `status`, and `total_amount` for orders
+  that are paid and have a `total_amount` of at least 100.
+
+concept: Combine conditions with AND.
+teach: >
+  AND means both conditions must be true for a row to survive. Comparisons
+  such as >= work on numbers without quotes.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT order_id, status, total_amount
+    FROM orders
+    WHERE status = 'paid'
+      AND total_amount >= 100;
+
+hints:
+  - level: 1
+    text: A row must satisfy two conditions at the same time.
+  - level: 2
+    text: Look at `status` and `total_amount` on `orders`.
+  - level: 3
+    text: Combine the two tests with AND. "At least 100" means >= 100.
+  - level: 4
+    text: |
+      SELECT order_id, status, total_amount
+      FROM orders
+      WHERE status = 'paid'
+        AND total_amount >= ...
+
+common_errors:
+  - tag: filtering
+    explanation: "Using OR would also keep unpaid orders."
+  - tag: comparison_operators
+    explanation: "> 100 drops orders whose amount is exactly 100."

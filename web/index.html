@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SQL Coach</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Skip to exercise</a>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="mark" aria-hidden="true">Σ</span>
+          <div>
+            <p class="eyebrow">SQL Coach</p>
+            <h1>Learn by writing queries</h1>
+          </div>
+        </div>
+        <nav class="top-actions" aria-label="Primary">
+          <button type="button" class="text-btn" id="btn-progress" aria-controls="progress-panel" aria-expanded="false">
+            Progress
+          </button>
+          <button type="button" class="text-btn" id="btn-schema-data">Show data</button>
+          <button type="button" class="text-btn" id="btn-easier">Easier</button>
+        </nav>
+      </header>
+
+      <section id="onboarding" class="onboarding" hidden>
+        <form id="onboarding-form" class="onboard-form">
+          <h2>Start a session</h2>
+          <p>Three questions. You can change them later.</p>
+          <div class="field">
+            <label for="sql-level">Current SQL level</label>
+            <select id="sql-level" name="sql_level" required>
+              <option value="new_to_sql">New to SQL</option>
+              <option value="select_where">Know basic SELECT/WHERE</option>
+              <option value="joins_grouping">Comfortable with joins/grouping</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="dialect">SQL dialect</label>
+            <select id="dialect" name="dialect" required>
+              <option value="postgresql">PostgreSQL</option>
+              <option value="sqlite">SQLite</option>
+              <option value="mysql">MySQL</option>
+              <option value="sqlserver">SQL Server</option>
+              <option value="not_sure">Not sure</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="goal">Main goal</label>
+            <select id="goal" name="goal" required>
+              <option value="foundations">Learn SQL from scratch</option>
+              <option value="analytics">Data analysis</option>
+              <option value="interviews">Interview preparation</option>
+              <option value="database_work">Work with databases</option>
+              <option value="refresh">Refresh / improve SQL</option>
+            </select>
+          </div>
+          <button type="submit" class="primary">Begin</button>
+        </form>
+      </section>
+
+      <main id="workspace" class="workspace">
+        <section class="schema-panel" aria-labelledby="schema-title">
+          <div class="panel-head">
+            <h2 id="schema-title">Schema</h2>
+            <p class="muted" id="lesson-skill">—</p>
+          </div>
+          <div id="schema-list" class="schema-list"></div>
+        </section>
+
+        <section class="task-panel" aria-labelledby="task-title">
+          <p class="kicker" id="lesson-kicker">Lesson</p>
+          <h2 id="task-title">Loading…</h2>
+          <p id="task-prompt" class="prompt"></p>
+          <p id="task-concept" class="concept"></p>
+        </section>
+
+        <section class="editor-panel" aria-labelledby="editor-title">
+          <div class="panel-head">
+            <h2 id="editor-title">SQL editor</h2>
+            <p class="muted" id="order-note"></p>
+          </div>
+          <div id="editor" class="editor" role="textbox" aria-label="SQL editor"></div>
+          <div class="actions">
+            <button type="button" class="primary" id="btn-run">Run</button>
+            <button type="button" class="primary alt" id="btn-submit">Submit</button>
+            <button type="button" class="ghost" id="btn-hint">Hint</button>
+            <button type="button" class="ghost" id="btn-solution">Show solution</button>
+            <button type="button" class="ghost" id="btn-next" hidden>Next exercise</button>
+          </div>
+        </section>
+
+        <section class="feedback-panel" aria-labelledby="feedback-title">
+          <div class="panel-head">
+            <h2 id="feedback-title">Result / feedback</h2>
+            <p class="muted" id="status-chip"></p>
+          </div>
+          <div id="tutor-feedback" class="feedback" tabindex="-1"></div>
+          <div id="result-table" class="result-wrap"></div>
+          <details id="engine-error" class="engine-error" hidden>
+            <summary>Engine detail</summary>
+            <pre id="engine-error-text"></pre>
+          </details>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="progress-panel" class="progress-dialog">
+      <form method="dialog" class="progress-card">
+        <div class="panel-head">
+          <h2>Progress</h2>
+          <button type="submit" class="text-btn">Close</button>
+        </div>
+        <p id="progress-pattern" class="concept"></p>
+        <ul id="skill-list" class="skill-list"></ul>
+      </form>
+    </dialog>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+id: agg_001
+title: How many orders
+primary_skill: aggregate_count
+secondary_skills: []
+difficulty: 1
+dataset: ecommerce
+module: foundations
+prerequisites: [select_basic]
+
+prompt: >
+  Return a single value: the number of rows in `orders`.
+
+concept: COUNT(*) counts rows.
+teach: >
+  Aggregates collapse many rows into a summary. COUNT(*) counts rows,
+  including those with NULL columns. COUNT(column) skips NULL in that column.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT COUNT(*)
+    FROM orders;
+
+hints:
+  - level: 1
+    text: You want a summary of the table, not one row per order.
+  - level: 2
+    text: The table to count is `orders`.
+  - level: 3
+    text: COUNT(*) counts rows.
+  - level: 4
+    text: |
+      SELECT COUNT(*)
+      FROM ...
+
+common_errors:
+  - tag: aggregation
+    explanation: SELECT * returns every order instead of a count.

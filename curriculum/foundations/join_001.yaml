@@ -1,0 +1,57 @@
+id: join_001
+title: Orders with customer names
+primary_skill: inner_join
+secondary_skills: [table_aliases, select_basic]
+difficulty: 3
+dataset: ecommerce
+module: joins
+prerequisites: [select_basic, filter_where]
+hidden_variants:
+  - hidden_nulls
+
+prompt: >
+  Return `order_id`, the customer `name`, and `total_amount` for every
+  order.
+
+concept: INNER JOIN keeps rows where the relationship exists.
+teach: >
+  Order amounts live on `orders`. Customer names live on `customers`.
+  Match them on customer_id. An INNER JOIN keeps only orders that have a
+  matching customer.
+
+schema:
+  - customers
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+  numeric_tolerance: 0.005
+
+reference:
+  sql: |
+    SELECT o.order_id, c.name, o.total_amount
+    FROM orders o
+    JOIN customers c
+      ON c.customer_id = o.customer_id;
+
+hints:
+  - level: 1
+    text: The columns you need are split across two tables.
+  - level: 2
+    text: "`orders.customer_id` refers to `customers.customer_id`."
+  - level: 3
+    text: Use a JOIN with an ON condition connecting those columns.
+  - level: 4
+    text: |
+      SELECT o.order_id, c.name, o.total_amount
+      FROM orders o
+      JOIN customers c
+        ON ...
+
+common_errors:
+  - tag: missing_join
+    explanation: Selecting from one table cannot produce names and order ids together.
+  - tag: join_condition
+    explanation: Joining on the wrong columns multiplies or drops rows.

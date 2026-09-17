@@ -1,0 +1,50 @@
+id: nul_001
+title: Orders that have not shipped
+primary_skill: null_handling
+secondary_skills: [filter_where]
+difficulty: 2
+dataset: ecommerce
+module: foundations
+prerequisites: [filter_where]
+hidden_variants:
+  - hidden_nulls
+
+prompt: >
+  Return `order_id`, `status`, and `shipped_at` for orders that do not have
+  a ship date yet.
+
+concept: NULL means unknown; compare it with IS NULL, never = NULL.
+teach: >
+  NULL is not a value you can compare with =. `shipped_at = NULL` is never
+  true. Use `IS NULL` to find missing values.
+
+schema:
+  - orders
+
+evaluation:
+  mode: result_set
+  order_matters: false
+  require_column_names: false
+
+reference:
+  sql: |
+    SELECT order_id, status, shipped_at
+    FROM orders
+    WHERE shipped_at IS NULL;
+
+hints:
+  - level: 1
+    text: Some ship dates are missing rather than set to a real date.
+  - level: 2
+    text: The missing values are in `orders.shipped_at`.
+  - level: 3
+    text: Test missing values with IS NULL, not = NULL.
+  - level: 4
+    text: |
+      SELECT order_id, status, shipped_at
+      FROM orders
+      WHERE shipped_at IS ...
+
+common_errors:
+  - tag: null_handling
+    explanation: WHERE shipped_at = NULL never matches in SQL.
